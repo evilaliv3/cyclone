@@ -149,7 +149,7 @@ class UtilsTest(unittest.TestCase):
     def test_import_object(self):
         import os.path
         other_os = import_object("os.path")
-        self.assertIs(os.path, other_os)
+        self.assertIdentical(os.path, other_os)
 
     def test_import_object_fail(self):
         self.assertRaises(ImportError, import_object, "meowkittens.something")
