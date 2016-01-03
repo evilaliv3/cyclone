@@ -1,12 +1,39 @@
 language: python
-python:
-    - "2.6"
-    - "2.7"
-    - "pypy"
+sudo: false
+
+matrix:
+  include:
+    - env: TOXENV=coveralls
+      python: "2.7"
+    - env: TOXENV=py26-twisted12
+      python: "2.6"
+    - env: TOXENV=py26-twisted13
+      python: "2.6"
+    - env: TOXENV=py26-twisted14
+      python: "2.6"
+    - env: TOXENV=py26-twisted15
+      python: "2.6"
+    - env: TOXENV=py27-twisted12
+      python: "2.7"
+    - env: TOXENV=py27-twisted13
+      python: "2.7"
+    - env: TOXENV=py27-twisted14
+      python: "2.7"
+    - env: TOXENV=py27-twisted15
+      python: "2.7"
+    - env: TOXENV=pypy-twisted12
+      python: "pypy"
+    - env: TOXENV=pypy-twisted13
+      python: "pypy"
+    - env: TOXENV=pypy-twisted14
+      python: "pypy"
+    - env: TOXENV=pypy-twisted15
+      python: "pypy"
+
 
 install:
-    - pip install -r cyclone/tests/test_requirements.txt
-    - pip install coveralls
+    - pip install tox coveralls
 
-script: coverage run `which trial` cyclone
+script: tox
+
 after_success: coveralls
