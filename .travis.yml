@@ -21,6 +21,14 @@ matrix:
       python: "2.7"
     - env: TOXENV=py27-twisted15
       python: "2.7"
+    - env: TOXENV=py35-twisted12
+      python: "3.5"
+    - env: TOXENV=py35-twisted13
+      python: "3.5"
+    - env: TOXENV=py35-twisted14
+      python: "3.5"
+    - env: TOXENV=py35-twisted15
+      python: "3.5"
     - env: TOXENV=pypy-twisted12
       python: "pypy"
     - env: TOXENV=pypy-twisted13
@@ -29,11 +37,16 @@ matrix:
       python: "pypy"
     - env: TOXENV=pypy-twisted15
       python: "pypy"
-
+    - env: TOXENV=pypy3-twisted12
+      python: "pypy3"
+    - env: TOXENV=pypy3-twisted13
+      python: "pypy3"
+    - env: TOXENV=pypy3-twisted14
+      python: "pypy3"
+    - env: TOXENV=pypy3-twisted15
+      python: "pypy3"
 
 install:
-    - pip install tox coveralls
+    - pip install tox
 
 script: tox
-
-after_success: coveralls
