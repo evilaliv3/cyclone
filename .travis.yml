@@ -45,6 +45,15 @@ matrix:
       python: "pypy3"
     - env: TOXENV=pypy3-twisted15
       python: "pypy3"
+  allow_failures:
+    - env: TOXENV=py35-twisted12
+    - env: TOXENV=py35-twisted13
+    - env: TOXENV=py35-twisted14
+    - env: TOXENV=py35-twisted15
+    - env: TOXENV=pypy3-twisted12
+    - env: TOXENV=pypy3-twisted13
+    - env: TOXENV=pypy3-twisted14
+    - env: TOXENV=pypy3-twisted15
 
 install:
     - pip install tox
