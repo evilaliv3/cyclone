@@ -67,6 +67,7 @@ import itertools
 import mimetypes
 import numbers
 import os.path
+import os.stat
 import re
 import stat
 import sys
@@ -1653,6 +1654,40 @@ class RedirectHandler(RequestHandler):
         self.redirect(self._url, permanent=self._permanent)
 
 
+class StaticFileProducer(object):
+    """Handle the producer logic of StaticFileHandler
+
+    @ivar handler: The L{Handler} to write the contents of the file to.
+    @ivar fileObject: The file the contents of which to write to the handler.
+    """
+    bufferSize = 65535 # same value used by twisted
+
+    def __init__(self, request, fileObject):
+        self.handler = request
+        self.fileObject = fileObject
+
+    def start(self):
+        self.handler.request.connection.transport.registerProducer(self, False)
+
+    def resumeProducing(self):
+        if not self.handler:
+            return
+
+        data = self.fileObject.read(self.bufferSize)
+
+        if data:
+            self.handler.write(data)
+            self.handler.flush()
+        else:
+            self.handler.request.connection.transport.unregisterProducer()
+            self.handler.finish()
+            self.stopProducing()
+
+    def stopProducing(self):
+        self.fileObject.close()
+        self.handler = None
+
+
 class StaticFileHandler(RequestHandler):
     """A simple handler that can serve static content from a directory.
 
@@ -1689,6 +1724,7 @@ class StaticFileHandler(RequestHandler):
     def head(self, path):
         self.get(path, include_body=False)
 
+    @asynchronous
     def get(self, path, include_body=True):
         path = self.parse_url_path(path)
         abspath = os.path.abspath(os.path.join(self.root, path))
@@ -1736,13 +1772,13 @@ class StaticFileHandler(RequestHandler):
                 self.set_status(304)
                 return
 
-        with open(abspath, "rb") as file:
-            data = file.read()
-            if include_body:
-                self.write(data)
-            else:
-                assert self.request.method == "HEAD"
-                self.set_header("Content-Length", len(data))
+        if include_body:
+            f = open(abspath, "rb")
+            StaticFileProducer(self, f).start()
+        else:
+            assert self.request.method == "HEAD"
+            self.set_header("Content-Length", os.stat(abspath).st_size)
+            self.finish()
 
     def set_extra_headers(self, path):
         """For subclass to add extra headers to the response"""
